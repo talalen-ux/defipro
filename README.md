@@ -78,6 +78,32 @@ npx hardhat run scripts/demo.js   # simulate a week in the market
 npx hardhat run scripts/deploy.js # deploy (mocks auto-deployed on local nets)
 ```
 
+## Frontend
+
+![Meridian app](docs/app-screenshot.png)
+
+A Vite + React dashboard lives in [`app/`](app): live MOR hero with a
+print-history sparkline, per-term pool cards with utilization meters and
+lend/withdraw, a borrow panel with advance-limit and locked-rate previews,
+your repo book with health badges and roll/close, and a liquidation desk.
+It connects through an injected wallet (MetaMask) or, on a local node, any
+unlocked dev account — no extension needed.
+
+```bash
+# terminal 1 — chain
+npx hardhat node
+
+# terminal 2 — deploy + demo data (writes app/src/deployment.json)
+npx hardhat run scripts/deploy.js --network localhost
+npx hardhat run scripts/seed.js --network localhost
+
+# terminal 3 — app
+cd app && npm install && npm run dev   # http://localhost:5173
+```
+
+After changing contracts, refresh the frontend ABIs with
+`node scripts/export-abi.js`.
+
 > Note: compilation is configured to use the solc-js compiler bundled in the
 > `solc` npm package (see `hardhat.config.js`), so it works with no network
 > access to `binaries.soliditylang.org`.

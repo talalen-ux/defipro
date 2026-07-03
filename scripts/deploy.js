@@ -79,7 +79,33 @@ async function main() {
   console.log(`  MeridianRateOracle:        ${await oracle.getAddress()}`);
   console.log(`  RepoMarket:                ${await market.getAddress()}`);
   console.log(`  Treasury:                  ${treasury}`);
-  console.log("\nMeridian deployed.");
+
+  // Write addresses for the frontend (app/src/deployment.json).
+  const fs = require("fs");
+  const path = require("path");
+  const deployment = {
+    network: network.name,
+    chainId: Number((await ethers.provider.getNetwork()).chainId),
+    rpcUrl: "http://localhost:8545",
+    contracts: {
+      RepoMarket: await market.getAddress(),
+      CollateralRegistry: await registry.getAddress(),
+      KinkedRateModel: await model.getAddress(),
+      MeridianRateOracle: await oracle.getAddress(),
+    },
+    stable: { address: stableAddress, symbol: "USDC", decimals: 6 },
+    collateral: tbill
+      ? [
+          { address: await tbill.getAddress(), symbol: "tBILL", decimals: 6 },
+          { address: await credit.getAddress(), symbol: "tCRED", decimals: 18 },
+        ]
+      : [],
+  };
+  const outPath = path.join(__dirname, "..", "app", "src", "deployment.json");
+  fs.mkdirSync(path.dirname(outPath), { recursive: true });
+  fs.writeFileSync(outPath, JSON.stringify(deployment, null, 2) + "\n");
+  console.log(`\nWrote ${path.relative(process.cwd(), outPath)}`);
+  console.log("Meridian deployed.");
 
   return { usdc, tbill, credit, tbillFeed, creditFeed, registry, model, oracle, market };
 }

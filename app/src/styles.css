@@ -1,0 +1,491 @@
+:root {
+  --bg: #e6f0fa;
+  --bg-tint: #dcebf8;
+  --surface: #ffffff;
+  --border: #d2e2f2;
+  --border-strong: #b7cfe6;
+  --ink: #12283d;
+  --ink-2: #44607a;
+  --ink-3: #7b91a6;
+  --accent: #1b6fc2;
+  --accent-strong: #135796;
+  --accent-soft: #e3eefb;
+  --good: #15803d;
+  --warn: #b45309;
+  --bad: #b91c1c;
+  --warn-soft: #fdf3e7;
+  --bad-soft: #fdecec;
+  --good-soft: #e9f6ee;
+  --radius: 14px;
+  --shadow: 0 1px 2px rgba(18, 40, 61, 0.05), 0 4px 16px rgba(18, 40, 61, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: radial-gradient(1200px 500px at 50% -10%, var(--bg-tint), var(--bg) 60%);
+  min-height: 100vh;
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 20px 24px 64px;
+}
+
+/* ---------------- header ---------------- */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 0 22px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.brand h1 {
+  font-size: 24px;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.brand .tag {
+  color: var(--ink-2);
+  font-size: 13px;
+}
+
+.header .spacer {
+  flex: 1;
+}
+
+.wallet {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pill {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.pill strong {
+  color: var(--ink);
+}
+
+/* ---------------- cards & layout ---------------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 20px;
+}
+
+.card h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+.card .sub {
+  color: var(--ink-3);
+  font-size: 13px;
+  margin: 0 0 14px;
+}
+
+.grid-pools {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.grid-two {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+@media (max-width: 900px) {
+  .grid-two {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------- MOR panel ---------------- */
+
+.mor-panel {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 24px;
+  align-items: center;
+}
+
+@media (max-width: 720px) {
+  .mor-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stat-hero .label {
+  font-size: 13px;
+  color: var(--ink-2);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.stat-hero .value {
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-hero .meta {
+  color: var(--ink-3);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.sparkline-wrap {
+  position: relative;
+}
+
+.sparkline-wrap svg {
+  display: block;
+  width: 100%;
+  height: 132px;
+}
+
+.chart-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 12px;
+  padding: 6px 9px;
+  transform: translate(-50%, -120%);
+  white-space: nowrap;
+  z-index: 5;
+}
+
+.chart-tooltip .when {
+  color: #b8c9d9;
+}
+
+/* ---------------- pool cards ---------------- */
+
+.pool-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.pool-head .rate {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.meter {
+  height: 8px;
+  background: var(--accent-soft);
+  border-radius: 4px;
+  margin: 12px 0 6px;
+  position: relative;
+}
+
+.meter .fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 4px;
+  background: var(--accent);
+  min-width: 2px;
+}
+
+.meter .fill.hot {
+  background: var(--warn);
+}
+
+.meter .kink {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  background: var(--border-strong);
+}
+
+.meter-caption {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-bottom: 12px;
+}
+
+.meter-caption .hot {
+  color: var(--warn);
+  font-weight: 600;
+}
+
+.kv {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13.5px;
+  padding: 3px 0;
+  color: var(--ink-2);
+}
+
+.kv strong {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------- forms ---------------- */
+
+.row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+input,
+select {
+  width: 100%;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  padding: 8px 11px;
+  font-size: 14px;
+  color: var(--ink);
+  background: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+  border-color: var(--accent);
+}
+
+button {
+  border: 0;
+  border-radius: 9px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--accent);
+  color: #fff;
+  white-space: nowrap;
+}
+
+button:hover {
+  background: var(--accent-strong);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+button.ghost {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+button.ghost:hover {
+  background: #d3e6f8;
+}
+
+button.danger {
+  background: var(--bad);
+}
+
+button.danger:hover {
+  background: #991b1b;
+}
+
+button.small {
+  padding: 5px 10px;
+  font-size: 13px;
+}
+
+.field-label {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  font-weight: 600;
+  margin: 12px 0 4px;
+}
+
+.hint {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  margin-top: 6px;
+}
+
+.hint strong {
+  color: var(--ink-2);
+}
+
+.seg {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.seg button {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.seg button.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ---------------- tables ---------------- */
+
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.tbl th {
+  text-align: left;
+  color: var(--ink-3);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tbl td {
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.tbl td strong {
+  color: var(--ink);
+}
+
+.tbl tr:last-child td {
+  border-bottom: 0;
+}
+
+.badge {
+  display: inline-block;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 10px;
+}
+
+.badge.good {
+  background: var(--good-soft);
+  color: var(--good);
+}
+
+.badge.warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.badge.bad {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+
+.empty {
+  color: var(--ink-3);
+  font-size: 13.5px;
+  padding: 14px 0;
+}
+
+/* ---------------- toasts ---------------- */
+
+.toasts {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 50;
+  max-width: 380px;
+}
+
+.toast {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  padding: 10px 14px;
+  font-size: 13.5px;
+}
+
+.toast.success {
+  border-left-color: var(--good);
+}
+
+.toast.error {
+  border-left-color: var(--bad);
+}
+
+.toast .t-label {
+  font-weight: 600;
+}
+
+.toast .t-detail {
+  color: var(--ink-3);
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+}
+
+.offline {
+  margin-top: 16px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  padding: 28px;
+  text-align: center;
+  color: var(--ink-2);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.offline code {
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  color: var(--accent-strong);
+}
