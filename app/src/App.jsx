@@ -109,6 +109,10 @@ export default function App() {
             <span className="pill" data-testid="account-pill">
               {conn.kind} · <strong>{shortAddr(conn.address)}</strong>
             </span>
+          ) : data?.demo ? (
+            <span className="pill" data-testid="demo-pill">
+              <strong>Demo snapshot</strong> · read-only
+            </span>
           ) : (
             <>
               <button onClick={() => connect("wallet")} disabled={!window.ethereum}>
@@ -139,6 +143,13 @@ export default function App() {
 
       {data && (
         <>
+          {data.demo && (
+            <div className="demo-banner">
+              You're viewing a captured snapshot of a seeded local market — actions are disabled.
+              For live mode, run the stack locally (see the README) — the app connects to your node
+              automatically.
+            </div>
+          )}
           <section className="card mor-panel" data-testid="mor-panel">
             <div className="stat-hero">
               <div className="label">MOR · Meridian Overnight Rate</div>

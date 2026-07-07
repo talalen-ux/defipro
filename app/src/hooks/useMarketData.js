@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getContracts, readProvider, DEPLOYMENT, TERMS } from "../lib/contracts";
+import { demoSnapshot } from "../lib/demo";
 
 const POLL_MS = 10_000;
 
@@ -104,6 +105,10 @@ export function useMarketData(address) {
       setError(null);
     } catch (e) {
       setError(e);
+      // No chain reachable and nothing loaded yet: fall back to the bundled
+      // demo snapshot so the hosted app is still viewable. Never clobber
+      // live data with it.
+      setData((prev) => prev ?? demoSnapshot());
     }
   }, [address]);
 
