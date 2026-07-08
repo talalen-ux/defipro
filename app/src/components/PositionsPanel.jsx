@@ -1,5 +1,6 @@
 import { fmtUsd, fmtRate, fmtMaturity, shortAddr } from "../lib/format";
 import { TERMS } from "../lib/contracts";
+import { TokenIcon } from "./TokenIcon";
 
 const BPSN = 10_000n;
 
@@ -55,7 +56,7 @@ export function PositionsPanel({ data, address, onClose, onRoll, onLiquidate }) 
               <tr key={String(r.id)}>
                 <td>{String(r.id)}</td>
                 <td>{TERMS[r.term].label}</td>
-                <td>{symbolOf(r.collateralToken)}</td>
+                <td><TokenIcon symbol={symbolOf(r.collateralToken)} />{symbolOf(r.collateralToken)}</td>
                 <td>
                   <strong>{fmtUsd(r.debt)}</strong>
                 </td>
@@ -99,7 +100,7 @@ export function PositionsPanel({ data, address, onClose, onRoll, onLiquidate }) 
               <tr key={String(r.id)}>
                 <td>{String(r.id)}</td>
                 <td>{shortAddr(r.borrower)}</td>
-                <td>{symbolOf(r.collateralToken)}</td>
+                <td><TokenIcon symbol={symbolOf(r.collateralToken)} />{symbolOf(r.collateralToken)}</td>
                 <td>
                   <strong>{fmtUsd(r.debt)}</strong>
                 </td>

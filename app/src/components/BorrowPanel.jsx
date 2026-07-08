@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ethers } from "ethers";
 import { getContracts, TERMS } from "../lib/contracts";
 import { fmtUsd, fmtToken, fmtRate } from "../lib/format";
+import { TokenIcon } from "./TokenIcon";
 
 const BPSN = 10_000n;
 
@@ -99,7 +100,8 @@ export function BorrowPanel({ data, connected, onOpenRepo }) {
       </select>
       {userBalance != null && (
         <div className="hint">
-          You hold <strong>{fmtToken(userBalance, token.decimals, token.symbol)}</strong>
+          <TokenIcon symbol={token.symbol} size={14} /> You hold{" "}
+          <strong>{fmtToken(userBalance, token.decimals, token.symbol)}</strong>
         </div>
       )}
 

@@ -1,5 +1,6 @@
 import { fmtUsd, shortAddr } from "../lib/format";
 import { DEPLOYMENT } from "../lib/contracts";
+import { TokenIcon } from "./TokenIcon";
 
 /**
  * Cash & liquidity: where the money comes from. Shows the user's cash
@@ -21,7 +22,10 @@ export function OnboardPanel({ data, connected, onClaim }) {
       </p>
 
       <div className="kv">
-        <span>Your {DEPLOYMENT.stable.symbol}</span>
+        <span>
+          <TokenIcon symbol={DEPLOYMENT.stable.symbol} />
+          Your {DEPLOYMENT.stable.symbol}
+        </span>
         <strong>{data.user ? fmtUsd(data.user.usdcBalance) : "—"}</strong>
       </div>
       {data.reserve && (
