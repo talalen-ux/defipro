@@ -1,23 +1,35 @@
+/* Robinhood Chain branding kit:
+   Robin Neon #CCFF00 · Heather 1 #D7D5CD · Heather 2 #B4B2AB ·
+   Heather 3 #94918B · Robin Black #1C1B15 · White #FFFFFF.
+   Dark ground, neon accent; surfaces are tints of Robin Black. */
 :root {
-  --bg: #e6f0fa;
-  --bg-tint: #dcebf8;
-  --surface: #ffffff;
-  --border: #d2e2f2;
-  --border-strong: #b7cfe6;
-  --ink: #12283d;
-  --ink-2: #44607a;
-  --ink-3: #7b91a6;
-  --accent: #1b6fc2;
-  --accent-strong: #135796;
-  --accent-soft: #e3eefb;
-  --good: #15803d;
-  --warn: #b45309;
-  --bad: #b91c1c;
-  --warn-soft: #fdf3e7;
-  --bad-soft: #fdecec;
-  --good-soft: #e9f6ee;
+  --neon: #ccff00;
+  --neon-dim: #b8e600;
+  --neon-soft: rgba(204, 255, 0, 0.12);
+  --heather-1: #d7d5cd;
+  --heather-2: #b4b2ab;
+  --heather-3: #94918b;
+  --black: #1c1b15;
+
+  --bg: #16150f;
+  --bg-tint: #21201a;
+  --surface: #24231b;
+  --border: #35342b;
+  --border-strong: #4a4840;
+  --ink: #ffffff;
+  --ink-2: var(--heather-1);
+  --ink-3: var(--heather-3);
+  --accent: var(--neon);
+  --accent-strong: var(--neon-dim);
+  --accent-soft: var(--neon-soft);
+  --good: #5bd98a;
+  --warn: #f0b429;
+  --bad: #f87171;
+  --warn-soft: rgba(240, 180, 41, 0.14);
+  --bad-soft: rgba(248, 113, 113, 0.14);
+  --good-soft: rgba(91, 217, 138, 0.14);
   --radius: 14px;
-  --shadow: 0 1px 2px rgba(18, 40, 61, 0.05), 0 4px 16px rgba(18, 40, 61, 0.06);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 * {
@@ -60,10 +72,11 @@ body {
   font-size: 24px;
   letter-spacing: -0.02em;
   margin: 0;
+  color: var(--neon);
 }
 
 .brand .tag {
-  color: var(--ink-2);
+  color: var(--ink-3);
   font-size: 13px;
 }
 
@@ -79,7 +92,7 @@ body {
 
 .pill {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: 999px;
   padding: 6px 14px;
   font-size: 13px;
@@ -148,7 +161,7 @@ body {
 
 .stat-hero .label {
   font-size: 13px;
-  color: var(--ink-2);
+  color: var(--heather-2);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -160,6 +173,7 @@ body {
   letter-spacing: -0.02em;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
+  color: var(--neon);
 }
 
 .stat-hero .meta {
@@ -181,8 +195,8 @@ body {
 .chart-tooltip {
   position: absolute;
   pointer-events: none;
-  background: var(--ink);
-  color: #fff;
+  background: #ffffff;
+  color: var(--black);
   border-radius: 8px;
   font-size: 12px;
   padding: 6px 9px;
@@ -192,7 +206,7 @@ body {
 }
 
 .chart-tooltip .when {
-  color: #b8c9d9;
+  color: var(--heather-3);
 }
 
 /* ---------------- pool cards ---------------- */
@@ -206,13 +220,13 @@ body {
 .pool-head .rate {
   font-size: 22px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--neon);
   font-variant-numeric: tabular-nums;
 }
 
 .meter {
   height: 8px;
-  background: var(--accent-soft);
+  background: rgba(204, 255, 0, 0.14);
   border-radius: 4px;
   margin: 12px 0 6px;
   position: relative;
@@ -222,7 +236,7 @@ body {
   position: absolute;
   inset: 0 auto 0 0;
   border-radius: 4px;
-  background: var(--accent);
+  background: var(--neon);
   min-width: 2px;
 }
 
@@ -235,7 +249,7 @@ body {
   top: -3px;
   bottom: -3px;
   width: 2px;
-  background: var(--border-strong);
+  background: var(--heather-3);
 }
 
 .meter-caption {
@@ -280,15 +294,19 @@ select {
   padding: 8px 11px;
   font-size: 14px;
   color: var(--ink);
-  background: #fff;
+  background: var(--black);
   font-variant-numeric: tabular-nums;
+}
+
+input::placeholder {
+  color: var(--heather-3);
 }
 
 input:focus,
 select:focus {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--neon);
   outline-offset: -1px;
-  border-color: var(--accent);
+  border-color: var(--neon);
 }
 
 button {
@@ -296,37 +314,38 @@ button {
   border-radius: 9px;
   padding: 8px 14px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  background: var(--accent);
-  color: #fff;
+  background: var(--neon);
+  color: var(--black);
   white-space: nowrap;
 }
 
 button:hover {
-  background: var(--accent-strong);
+  background: var(--neon-dim);
 }
 
 button:disabled {
-  opacity: 0.45;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 button.ghost {
-  background: var(--accent-soft);
-  color: var(--accent-strong);
+  background: var(--neon-soft);
+  color: var(--neon);
 }
 
 button.ghost:hover {
-  background: #d3e6f8;
+  background: rgba(204, 255, 0, 0.2);
 }
 
 button.danger {
   background: var(--bad);
+  color: var(--black);
 }
 
 button.danger:hover {
-  background: #991b1b;
+  background: #ef5350;
 }
 
 button.small {
@@ -336,7 +355,7 @@ button.small {
 
 .field-label {
   font-size: 12.5px;
-  color: var(--ink-2);
+  color: var(--heather-2);
   font-weight: 600;
   margin: 12px 0 4px;
 }
@@ -358,14 +377,14 @@ button.small {
 }
 
 .seg button {
-  background: var(--accent-soft);
-  color: var(--accent-strong);
+  background: var(--neon-soft);
+  color: var(--neon);
   font-weight: 600;
 }
 
 .seg button.active {
-  background: var(--accent);
-  color: #fff;
+  background: var(--neon);
+  color: var(--black);
 }
 
 /* ---------------- tables ---------------- */
@@ -384,7 +403,7 @@ button.small {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 6px 8px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-strong);
 }
 
 .tbl td {
@@ -446,8 +465,8 @@ button.small {
 
 .toast {
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 4px solid var(--accent);
+  border: 1px solid var(--border-strong);
+  border-left: 4px solid var(--neon);
   border-radius: 10px;
   box-shadow: var(--shadow);
   padding: 10px 14px;
@@ -473,10 +492,10 @@ button.small {
 }
 
 .demo-banner {
-  background: var(--accent-soft);
+  background: var(--neon-soft);
   border: 1px solid var(--border-strong);
   border-radius: 10px;
-  color: var(--accent-strong);
+  color: var(--neon);
   font-size: 13.5px;
   padding: 9px 14px;
   margin-bottom: 16px;
@@ -489,13 +508,13 @@ button.small {
   padding: 28px;
   text-align: center;
   color: var(--ink-2);
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .offline code {
-  background: var(--accent-soft);
+  background: var(--neon-soft);
   border-radius: 6px;
   padding: 2px 7px;
   font-size: 13px;
-  color: var(--accent-strong);
+  color: var(--neon);
 }

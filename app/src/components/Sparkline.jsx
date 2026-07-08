@@ -74,18 +74,18 @@ export function Sparkline({ points }) {
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="MOR overnight rate history">
         {gridRates.map((r, i) => (
           <g key={i}>
-            <line x1={PAD.left} x2={W - PAD.right} y1={y(r)} y2={y(r)} stroke="#e3edf7" strokeWidth="1" />
-            <text x={PAD.left - 8} y={y(r) + 4} textAnchor="end" fontSize="11" fill="#7b91a6">
+            <line x1={PAD.left} x2={W - PAD.right} y1={y(r)} y2={y(r)} stroke="#35342b" strokeWidth="1" />
+            <text x={PAD.left - 8} y={y(r) + 4} textAnchor="end" fontSize="11" fill="#94918b">
               {fmtRate(Math.round(r))}
             </text>
           </g>
         ))}
-        <path d={area} fill="#1b6fc2" opacity="0.09" />
-        <path d={d} fill="none" stroke="#1b6fc2" strokeWidth="2" strokeLinejoin="round" />
+        <path d={area} fill="#ccff00" opacity="0.1" />
+        <path d={d} fill="none" stroke="#ccff00" strokeWidth="2" strokeLinejoin="round" />
         {hover && (
           <g>
-            <line x1={hover.px} x2={hover.px} y1={PAD.top} y2={H - PAD.bottom} stroke="#b7cfe6" strokeWidth="1" />
-            <circle cx={hover.px} cy={y(hover.point.rate)} r="4" fill="#1b6fc2" stroke="#fff" strokeWidth="2" />
+            <line x1={hover.px} x2={hover.px} y1={PAD.top} y2={H - PAD.bottom} stroke="#4a4840" strokeWidth="1" />
+            <circle cx={hover.px} cy={y(hover.point.rate)} r="4" fill="#ccff00" stroke="#1c1b15" strokeWidth="2" />
           </g>
         )}
       </svg>
