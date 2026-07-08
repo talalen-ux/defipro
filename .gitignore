@@ -6,3 +6,4 @@ coverage.json
 typechain-types/
 .env
 app/dist/
+app/dist-single/
