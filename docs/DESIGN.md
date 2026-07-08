@@ -68,6 +68,28 @@ same discount and the pool absorbs the shortfall — losses are isolated to
 the term pool that underwrote the repo, and the protocol takes no fee on a
 loss.
 
+### Liquidity: connected to existing on-chain venues
+
+The market never invents its own money. Cash is a canonical stablecoin
+(USDC), and the liquidity plumbing plugs into infrastructure that already
+exists on-chain:
+
+- **Reserve vault (ERC-4626).** Idle pool cash is parked in a
+  governance-set external 4626 vault — Aave wrappers, Morpho, Yearn and
+  Spark all expose this interface — and recalled just-in-time for borrows
+  and withdrawals. Pool accounting is unaffected (lenders' claims are
+  tracked in cash units); the float yield the venue generates is surplus,
+  and `skim()` sends it to the treasury permissionlessly. Governance can
+  migrate venues atomically (`setReserveVault` fully unwinds the old vault
+  first) or fall back to local custody with `address(0)`.
+- **Protocol-owned liquidity.** `ProtocolTreasury` receives all protocol
+  fees on-chain and can lend treasury cash into the term pools
+  (`seedPool`/`exitPool`), so the market quotes usable rates from day one
+  instead of waiting for outside lenders.
+- **Self-serve onboarding (testnet).** A `Faucet` dispenses starter
+  balances of the reserve stable and demo collateral on a daily cooldown,
+  making the MVP fully self-serve: claim → lend or borrow → exit.
+
 ### The MOR benchmark
 
 `MeridianRateOracle` keeps a cumulative rate-time accumulator per term (the

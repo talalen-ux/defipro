@@ -49,6 +49,17 @@ flowchart LR
 | `CollateralRegistry` | Governance-listed collateral with per-issuer advance rates (haircuts), maintenance margins, liquidation penalties, supply caps, and price feeds |
 | `KinkedRateModel` | Per-term utilization curve that prices every repo at the pool's marginal rate |
 | `MeridianRateOracle` | Cumulative rate-time accumulator (TWAP-style) publishing MOR and time-weighted average rates per term |
+| `ProtocolTreasury` | On-chain fee sink and bootstrap lender — seeds term pools with protocol-owned liquidity |
+| `Faucet` (testnet) | Self-serve starter balances so anyone can run the full lend/borrow loop |
+
+**Liquidity is connected to existing on-chain venues.** The market's cash
+is a canonical stablecoin (USDC), and idle pool cash never sits dead: the
+market parks it in a governance-set external **ERC-4626 vault** — the
+standard interface exposed by Aave wrappers, Morpho, Yearn and Spark
+vaults — and recalls it on demand for borrows and withdrawals. Yield
+earned on that float is `skim()`-able to the treasury by anyone. Locally
+and on testnets a mock venue stands in; on a live network point
+`RESERVE_VAULT` at any deployed 4626 vault.
 
 ## How a repo works here
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity 0.8.24;
+pragma solidity ^0.8.24;
 
 interface IRateModel {
     /// @notice Annualized borrow rate (bps) for a term pool at a given

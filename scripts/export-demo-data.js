@@ -84,6 +84,15 @@ async function main() {
     });
   }
 
+  let reserve = null;
+  if (deployment.contracts.ReserveVault) {
+    const vault = await ethers.getContractAt("MockYieldVault", deployment.contracts.ReserveVault);
+    reserve = {
+      address: deployment.contracts.ReserveVault,
+      parked: await vault.convertToAssets(await vault.balanceOf(deployment.contracts.RepoMarket)),
+    };
+  }
+
   const snapshot = {
     snapshotAt: (await ethers.provider.getBlock("latest")).timestamp,
     pools,
@@ -91,6 +100,7 @@ async function main() {
     history,
     collateralInfo,
     repos,
+    reserve,
   };
 
   const outPath = path.join(__dirname, "..", "app", "src", "demoData.json");

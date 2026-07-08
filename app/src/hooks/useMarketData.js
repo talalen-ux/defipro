@@ -15,7 +15,8 @@ export function useMarketData(address) {
 
   const load = useCallback(async () => {
     try {
-      const { market, registry, model, oracle, stable, collateral } = getContracts();
+      const { market, registry, model, oracle, stable, collateral, reserveVault, faucet } =
+        getContracts();
 
       const pools = await Promise.all(
         TERMS.map(async (t) => {
@@ -80,6 +81,15 @@ export function useMarketData(address) {
         repos.push({ id, ...repoToObj(repo), debt, liquidatable, collateralValue });
       }
 
+      // External liquidity venue holding the market's idle cash.
+      let reserve = null;
+      if (reserveVault) {
+        const parked = await reserveVault.convertToAssets(
+          await reserveVault.balanceOf(DEPLOYMENT.contracts.RepoMarket)
+        );
+        reserve = { address: DEPLOYMENT.contracts.ReserveVault, parked };
+      }
+
       let user = null;
       if (address) {
         const [usdcBalance, positions, collateralBalances] = await Promise.all([
@@ -98,10 +108,14 @@ export function useMarketData(address) {
             }))
           ),
         ]);
-        user = { usdcBalance, positions, collateralBalances };
+        let nextClaimAt = null;
+        if (faucet) {
+          nextClaimAt = Number(await faucet.nextClaimAt(address));
+        }
+        user = { usdcBalance, positions, collateralBalances, nextClaimAt };
       }
 
-      setData({ pools, mor, history, collateralInfo, repos, user, loadedAt: Date.now() });
+      setData({ pools, mor, history, collateralInfo, repos, user, reserve, loadedAt: Date.now() });
       setError(null);
     } catch (e) {
       setError(e);

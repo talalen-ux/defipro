@@ -17,7 +17,6 @@ async function main() {
 
   const isLocal = network.name === "hardhat" || network.name === "localhost";
   let stableAddress = process.env.STABLE;
-  const treasury = process.env.TREASURY || deployer.address;
 
   let usdc, tbill, credit, tbillFeed, creditFeed;
   if (isLocal || !stableAddress) {
@@ -41,15 +40,41 @@ async function main() {
   const registry = await ethers.deployContract("CollateralRegistry", [deployer.address]);
   const model = await ethers.deployContract("KinkedRateModel", [deployer.address]);
   const oracle = await ethers.deployContract("MeridianRateOracle", [deployer.address]);
+  const protocolTreasury = await ethers.deployContract("ProtocolTreasury", [deployer.address]);
   const market = await ethers.deployContract("RepoMarket", [
     deployer.address,
     stableAddress,
     await registry.getAddress(),
     await model.getAddress(),
     await oracle.getAddress(),
-    treasury,
+    await protocolTreasury.getAddress(),
   ]);
   await (await oracle.setMarket(await market.getAddress())).wait();
+
+  // Idle cash is parked in an external ERC-4626 venue. On live networks set
+  // RESERVE_VAULT to an already-deployed vault (Aave wrapper, Morpho, etc.);
+  // locally a mock venue stands in.
+  let reserveVault = process.env.RESERVE_VAULT;
+  if (!reserveVault && isLocal) {
+    const mockVault = await ethers.deployContract("MockYieldVault", [stableAddress]);
+    reserveVault = await mockVault.getAddress();
+  }
+  if (reserveVault) {
+    await (await market.setReserveVault(reserveVault)).wait();
+  }
+
+  // Testnet self-onboarding.
+  let faucet = null;
+  if (tbill) {
+    faucet = await ethers.deployContract("Faucet", [
+      stableAddress,
+      await tbill.getAddress(),
+      await credit.getAddress(),
+      ethers.parseUnits("100000", 6),
+      ethers.parseUnits("50000", 6),
+      WAD("25000"),
+    ]);
+  }
 
   // Rate curves: [base, slope1, slope2, kink] annualized bps. Overnight is
   // the MOR-defining pool; longer terms carry a small term premium.
@@ -78,7 +103,9 @@ async function main() {
   console.log(`  KinkedRateModel:           ${await model.getAddress()}`);
   console.log(`  MeridianRateOracle:        ${await oracle.getAddress()}`);
   console.log(`  RepoMarket:                ${await market.getAddress()}`);
-  console.log(`  Treasury:                  ${treasury}`);
+  console.log(`  ProtocolTreasury:          ${await protocolTreasury.getAddress()}`);
+  console.log(`  ReserveVault (ERC-4626):   ${reserveVault ?? "none (local custody)"}`);
+  if (faucet) console.log(`  Faucet:                    ${await faucet.getAddress()}`);
 
   // Write addresses for the frontend (app/src/deployment.json).
   const fs = require("fs");
@@ -92,6 +119,9 @@ async function main() {
       CollateralRegistry: await registry.getAddress(),
       KinkedRateModel: await model.getAddress(),
       MeridianRateOracle: await oracle.getAddress(),
+      ProtocolTreasury: await protocolTreasury.getAddress(),
+      ReserveVault: reserveVault ?? null,
+      Faucet: faucet ? await faucet.getAddress() : null,
     },
     stable: { address: stableAddress, symbol: "USDC", decimals: 6 },
     collateral: tbill
@@ -107,7 +137,7 @@ async function main() {
   console.log(`\nWrote ${path.relative(process.cwd(), outPath)}`);
   console.log("Meridian deployed.");
 
-  return { usdc, tbill, credit, tbillFeed, creditFeed, registry, model, oracle, market };
+  return { usdc, tbill, credit, tbillFeed, creditFeed, registry, model, oracle, market, protocolTreasury, faucet };
 }
 
 if (require.main === module) {

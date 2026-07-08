@@ -39,6 +39,7 @@ export function demoSnapshot() {
       debt: B(r.debt),
       collateralValue: B(r.collateralValue),
     })),
+    reserve: raw.reserve ? { address: raw.reserve.address, parked: B(raw.reserve.parked) } : null,
     user: null,
     loadedAt: Date.now(),
   };

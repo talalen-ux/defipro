@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity 0.8.24;
+pragma solidity ^0.8.24;
 
 import {Ownable2Step, Ownable} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
@@ -9,6 +9,7 @@ import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IER
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {SafeCast} from "@openzeppelin/contracts/utils/math/SafeCast.sol";
+import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 
 import {ICollateralRegistry} from "./interfaces/ICollateralRegistry.sol";
 import {IRateModel} from "./interfaces/IRateModel.sol";
@@ -83,6 +84,13 @@ contract RepoMarket is Ownable2Step, Pausable, ReentrancyGuard {
     IMeridianRateOracle public rateOracle;
     address public treasury;
 
+    /// @notice Optional external ERC-4626 vault (an Aave wrapper, Morpho or
+    /// similar already-deployed venue) where idle pool cash is parked. The
+    /// market pushes cash in as it arrives and pulls it back on demand, so
+    /// liquidity is never idle; yield on the float accrues to the treasury
+    /// via {skim}. address(0) = hold cash locally.
+    IERC4626 public reserveVault;
+
     /// @notice Share of repo interest kept by the protocol (bps).
     uint256 public protocolFeeBps;
     /// @notice Extra annualized rate charged past maturity (bps).
@@ -131,6 +139,8 @@ contract RepoMarket is Ownable2Step, Pausable, ReentrancyGuard {
     event RateModelSet(address model);
     event RegistrySet(address registry);
     event RateOracleSet(address oracle);
+    event ReserveVaultSet(address vault);
+    event SurplusSkimmed(uint256 amount);
 
     error InvalidTerm();
     error ZeroAmount();
@@ -193,6 +203,7 @@ contract RepoMarket is Ownable2Step, Pausable, ReentrancyGuard {
         sharesOf[term][msg.sender] += shares;
 
         stable.safeTransferFrom(msg.sender, address(this), amount);
+        _pushCash(amount);
         _pushRate(term);
         emit Deposited(term, msg.sender, amount, shares);
     }
@@ -212,6 +223,7 @@ contract RepoMarket is Ownable2Step, Pausable, ReentrancyGuard {
         pool.totalShares -= shares;
         pool.cash -= amount.toUint128();
 
+        _pullCash(amount);
         stable.safeTransfer(msg.sender, amount);
         _pushRate(term);
         emit Withdrawn(term, msg.sender, amount, shares);
@@ -269,6 +281,7 @@ contract RepoMarket is Ownable2Step, Pausable, ReentrancyGuard {
         });
 
         IERC20(collateralToken).safeTransferFrom(msg.sender, address(this), collateralAmount);
+        _pullCash(borrowAmount);
         stable.safeTransfer(msg.sender, borrowAmount);
         _pushRate(term);
 
@@ -302,6 +315,7 @@ contract RepoMarket is Ownable2Step, Pausable, ReentrancyGuard {
 
         stable.safeTransferFrom(msg.sender, address(this), principal + interest);
         if (fee > 0) stable.safeTransfer(treasury, fee);
+        _pushCash(principal + interest - fee);
         IERC20(repo.collateralToken).safeTransfer(repo.borrower, repo.collateralAmount);
         _pushRate(repo.term);
 
@@ -330,6 +344,7 @@ contract RepoMarket is Ownable2Step, Pausable, ReentrancyGuard {
 
         stable.safeTransferFrom(msg.sender, address(this), interest);
         if (fee > 0) stable.safeTransfer(treasury, fee);
+        _pushCash(interest - fee);
         _pushRate(repo.term);
 
         emit RepoRolled(repoId, interest, newRate, repo.maturity);
@@ -396,6 +411,7 @@ contract RepoMarket is Ownable2Step, Pausable, ReentrancyGuard {
 
         stable.safeTransferFrom(msg.sender, address(this), repaid);
         if (fee > 0) stable.safeTransfer(treasury, fee);
+        _pushCash(repaid - fee);
         IERC20(repo.collateralToken).safeTransfer(msg.sender, seized);
         uint256 remainder = uint256(repo.collateralAmount) - seized;
         if (remainder > 0) IERC20(repo.collateralToken).safeTransfer(repo.borrower, remainder);
@@ -505,6 +521,46 @@ contract RepoMarket is Ownable2Step, Pausable, ReentrancyGuard {
         emit RateOracleSet(address(oracle));
     }
 
+    /// @notice Point idle cash at an external ERC-4626 venue (or address(0)
+    /// to hold cash locally). Fully unwinds the old vault, then parks the
+    /// market's whole cash balance in the new one.
+    function setReserveVault(IERC4626 newVault) external onlyOwner nonReentrant {
+        IERC4626 old = reserveVault;
+        if (address(old) != address(0)) {
+            uint256 shares = old.balanceOf(address(this));
+            if (shares > 0) old.redeem(shares, address(this), address(this));
+        }
+        if (address(newVault) != address(0) && newVault.asset() != address(stable)) revert InvalidParams();
+        reserveVault = newVault;
+
+        if (address(newVault) != address(0)) {
+            uint256 bal = stable.balanceOf(address(this));
+            if (bal > 0) {
+                stable.forceApprove(address(newVault), bal);
+                newVault.deposit(bal, address(this));
+            }
+        }
+        emit ReserveVaultSet(address(newVault));
+    }
+
+    /// @notice Sends yield earned on the parked float (anything held beyond
+    /// what lenders are owed) to the treasury. Callable by anyone.
+    function skim() external nonReentrant returns (uint256 surplus) {
+        uint256 tracked = _totalTrackedCash();
+        uint256 local = stable.balanceOf(address(this));
+        uint256 inVault = address(reserveVault) != address(0)
+            ? reserveVault.convertToAssets(reserveVault.balanceOf(address(this)))
+            : 0;
+        uint256 held = local + inVault;
+        if (held > tracked) {
+            surplus = held - tracked;
+            uint256 fromVault = surplus > local ? surplus - local : 0;
+            if (fromVault > 0) reserveVault.withdraw(fromVault, address(this), address(this));
+            stable.safeTransfer(treasury, surplus);
+        }
+        emit SurplusSkimmed(surplus);
+    }
+
     function pause() external onlyOwner {
         _pause();
     }
@@ -557,5 +613,28 @@ contract RepoMarket is Ownable2Step, Pausable, ReentrancyGuard {
 
     function _pushRate(uint8 term) internal {
         rateOracle.record(term, rateModel.rateFor(term, _utilizationBps(_pools[term])));
+    }
+
+    function _totalTrackedCash() internal view returns (uint256 total) {
+        for (uint8 i; i < NUM_TERMS; i++) {
+            total += _pools[i].cash;
+        }
+    }
+
+    /// @dev Park newly received cash in the reserve vault, if one is set.
+    function _pushCash(uint256 amount) internal {
+        IERC4626 vault = reserveVault;
+        if (address(vault) != address(0) && amount > 0) {
+            stable.forceApprove(address(vault), amount);
+            vault.deposit(amount, address(this));
+        }
+    }
+
+    /// @dev Recall cash from the reserve vault ahead of a payout.
+    function _pullCash(uint256 amount) internal {
+        IERC4626 vault = reserveVault;
+        if (address(vault) != address(0) && amount > 0) {
+            vault.withdraw(amount, address(this), address(this));
+        }
     }
 }

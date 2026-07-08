@@ -34,7 +34,7 @@ async function printMOR(oracle, label) {
 
 async function main() {
   console.log("=== Meridian demo: a week in the repo market ===\n");
-  const { usdc, tbill, credit, tbillFeed, creditFeed, oracle, market } = await deploy();
+  const { usdc, tbill, credit, tbillFeed, creditFeed, oracle, market, protocolTreasury } = await deploy();
   const [deployer, lenderA, lenderB, rwaDesk, creditFund, liquidator] = await ethers.getSigners();
 
   // Fund actors.
@@ -103,7 +103,7 @@ async function main() {
   const bAssets = await market.balanceOfAssets(OVERNIGHT, lenderB.address);
   console.log(`  lenderA overnight balance: ${fmtUSDC(aAssets)} (from $10M)`);
   console.log(`  lenderB overnight balance: ${fmtUSDC(bAssets)} (from $5M)`);
-  console.log(`  protocol treasury earned:  ${fmtUSDC(await usdc.balanceOf(deployer.address))}`);
+  console.log(`  protocol treasury earned:  ${fmtUSDC(await usdc.balanceOf(protocolTreasury))}`);
   await printMOR(oracle, "end of week");
 
   console.log("\n=== Demo complete: fixed-term financing, live MOR prints, a margin ===");

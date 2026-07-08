@@ -1,13 +1,13 @@
 {
-  "snapshotAt": 1783194642,
+  "snapshotAt": 1783524044,
   "pools": [
     {
       "id": 0,
-      "cash": "7200011468322",
+      "cash": "9200010882705",
       "outstanding": "6800000000000",
-      "totalShares": "14000000000000000000",
-      "utilization": "4857",
-      "liveRate": "414"
+      "totalShares": "16000000000000000000",
+      "utilization": "4249",
+      "liveRate": "399"
     },
     {
       "id": 1,
@@ -35,39 +35,43 @@
     }
   ],
   "mor": {
-    "rate": "414",
-    "updatedAt": "1783194641",
-    "twar1d": "452"
+    "rate": "399",
+    "updatedAt": "1783524043",
+    "twar1d": "431"
   },
   "history": [
     {
-      "t": 1783188267,
+      "t": 1783517721,
       "rate": "300"
     },
     {
-      "t": 1783188268,
+      "t": 1783517722,
       "rate": "300"
     },
     {
-      "t": 1783188271,
-      "rate": "433"
+      "t": 1783517723,
+      "rate": "300"
     },
     {
-      "t": 1783190141,
-      "rate": "470"
+      "t": 1783517726,
+      "rate": "414"
     },
     {
-      "t": 1783192841,
+      "t": 1783519543,
       "rate": "446"
     },
     {
-      "t": 1783194641,
-      "rate": "414"
+      "t": 1783522243,
+      "rate": "427"
+    },
+    {
+      "t": 1783524043,
+      "rate": "399"
     }
   ],
   "collateralInfo": [
     {
-      "address": "0x0B306BF915C4d645ff596e518fAf3F9669b97016",
+      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
       "symbol": "tBILL",
       "decimals": 6,
       "cfg": {
@@ -78,7 +82,7 @@
       "unitPriceWad": "1050000000000000000"
     },
     {
-      "address": "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
+      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
       "symbol": "tCRED",
       "decimals": 18,
       "cfg": {
@@ -93,44 +97,48 @@
     {
       "id": "0",
       "borrower": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
-      "collateralToken": "0x0B306BF915C4d645ff596e518fAf3F9669b97016",
+      "collateralToken": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
       "collateralAmount": "7000000000000",
       "principal": "6800000000000",
-      "rateBps": "433",
-      "openedAt": "1783188271",
-      "maturity": "1783274671",
+      "rateBps": "414",
+      "openedAt": "1783517726",
+      "maturity": "1783604126",
       "term": 0,
-      "debt": "6800059483677",
+      "debt": "6800056400410",
       "liquidatable": false,
       "collateralValue": "7350000000000"
     },
     {
       "id": "1",
       "borrower": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
-      "collateralToken": "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
+      "collateralToken": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
       "collateralAmount": "1500000000000000000000000",
       "principal": "1200000000000",
       "rateBps": "420",
-      "openedAt": "1783188272",
-      "maturity": "1785780272",
+      "openedAt": "1783517727",
+      "maturity": "1786109727",
       "term": 2,
-      "debt": "1200010180365",
+      "debt": "1200010095662",
       "liquidatable": true,
       "collateralValue": "1293600000000"
     },
     {
       "id": "2",
       "borrower": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
-      "collateralToken": "0x0B306BF915C4d645ff596e518fAf3F9669b97016",
+      "collateralToken": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
       "collateralAmount": "1000000000000",
       "principal": "950000000000",
       "rateBps": "401",
-      "openedAt": "1783188273",
-      "maturity": "1783793073",
+      "openedAt": "1783517728",
+      "maturity": "1784122528",
       "term": 1,
-      "debt": "950007693653",
+      "debt": "950007629630",
       "liquidatable": false,
       "collateralValue": "1050000000000"
     }
-  ]
+  ],
+  "reserve": {
+    "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
+    "parked": "15050010882705"
+  }
 }

@@ -12,6 +12,7 @@ import { Sparkline } from "./components/Sparkline";
 import { PoolCard } from "./components/PoolCard";
 import { BorrowPanel } from "./components/BorrowPanel";
 import { PositionsPanel } from "./components/PositionsPanel";
+import { OnboardPanel } from "./components/OnboardPanel";
 
 let toastSeq = 0;
 
@@ -89,6 +90,11 @@ export default function App() {
       const debt = await c.market.currentDebt(id);
       await ensureAllowance(c.stable, conn.address, DEPLOYMENT.contracts.RepoMarket, debt + debt / 100n);
       await (await c.market.liquidate(id)).wait();
+    });
+
+  const onClaim = () =>
+    run("Claim test funds", async (c) => {
+      await (await c.faucet.claim()).wait();
     });
 
   return (
@@ -176,7 +182,10 @@ export default function App() {
           </section>
 
           <section className="grid-two">
-            <BorrowPanel data={data} connected={!!conn} onOpenRepo={onOpenRepo} />
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <OnboardPanel data={data} connected={!!conn} onClaim={onClaim} />
+              <BorrowPanel data={data} connected={!!conn} onOpenRepo={onOpenRepo} />
+            </div>
             <PositionsPanel
               data={data}
               address={conn?.address}

@@ -34,6 +34,14 @@ async function main() {
     await (await credit.connect(u).approve(market, ethers.MaxUint256)).wait();
   }
 
+  console.log("Treasury seeds protocol-owned liquidity...");
+  const protocolTreasury = await ethers.getContractAt(
+    "ProtocolTreasury",
+    deployment.contracts.ProtocolTreasury
+  );
+  await (await usdc.mint(protocolTreasury, USDC(2_000_000))).wait();
+  await (await protocolTreasury.seedPool(market, OVERNIGHT, USDC(2_000_000))).wait();
+
   console.log("Lenders fund the term pools...");
   await (await market.connect(lenderA).deposit(OVERNIGHT, USDC(8_000_000))).wait();
   await (await market.connect(lenderB).deposit(OVERNIGHT, USDC(4_000_000))).wait();

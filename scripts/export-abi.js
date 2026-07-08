@@ -11,6 +11,9 @@ const CONTRACTS = [
   "KinkedRateModel",
   "MeridianRateOracle",
   "MockERC20",
+  "MockYieldVault",
+  "ProtocolTreasury",
+  "Faucet",
 ];
 
 const artifactsDir = path.join(__dirname, "..", "artifacts", "contracts");

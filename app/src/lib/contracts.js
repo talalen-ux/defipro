@@ -5,6 +5,8 @@ import CollateralRegistryAbi from "../abi/CollateralRegistry.json";
 import KinkedRateModelAbi from "../abi/KinkedRateModel.json";
 import MeridianRateOracleAbi from "../abi/MeridianRateOracle.json";
 import MockERC20Abi from "../abi/MockERC20.json";
+import MockYieldVaultAbi from "../abi/MockYieldVault.json";
+import FaucetAbi from "../abi/Faucet.json";
 
 export const DEPLOYMENT = deployment;
 export const TERMS = [
@@ -29,6 +31,12 @@ export function getContracts(runner = readProvider) {
     collateral: Object.fromEntries(
       deployment.collateral.map((c) => [c.address, new ethers.Contract(c.address, MockERC20Abi, runner)])
     ),
+    reserveVault: deployment.contracts.ReserveVault
+      ? new ethers.Contract(deployment.contracts.ReserveVault, MockYieldVaultAbi, runner)
+      : null,
+    faucet: deployment.contracts.Faucet
+      ? new ethers.Contract(deployment.contracts.Faucet, FaucetAbi, runner)
+      : null,
   };
 }
 
