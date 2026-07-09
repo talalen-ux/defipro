@@ -81,8 +81,6 @@ export function useMarketData(address) {
         repos.push({ id, ...repoToObj(repo), debt, liquidatable, collateralValue });
       }
 
-      const protocolFeeBps = await market.protocolFeeBps();
-
       // External liquidity venue holding the market's idle cash.
       let reserve = null;
       if (reserveVault) {
@@ -94,29 +92,14 @@ export function useMarketData(address) {
 
       let user = null;
       if (address) {
-        // Lifetime cash flows per term (from events) let us show realized
-        // earnings: assets + withdrawn - deposited.
-        const flows = TERMS.map(() => ({ deposited: 0n, withdrawn: 0n }));
-        const [depEvents, wdEvents] = await Promise.all([
-          market.queryFilter(market.filters.Deposited(null, address), 0),
-          market.queryFilter(market.filters.Withdrawn(null, address), 0),
-        ]);
-        for (const ev of depEvents) flows[Number(ev.args.term)].deposited += ev.args.amount;
-        for (const ev of wdEvents) flows[Number(ev.args.term)].withdrawn += ev.args.amount;
-
         const [usdcBalance, positions, collateralBalances] = await Promise.all([
           stable.balanceOf(address),
           Promise.all(
-            TERMS.map(async (t) => {
-              const assets = await market.balanceOfAssets(t.id, address);
-              const earned = assets + flows[t.id].withdrawn - flows[t.id].deposited;
-              return {
-                term: t.id,
-                shares: await market.sharesOf(t.id, address),
-                assets,
-                earned: earned > 0n ? earned : 0n,
-              };
-            })
+            TERMS.map(async (t) => ({
+              term: t.id,
+              shares: await market.sharesOf(t.id, address),
+              assets: await market.balanceOfAssets(t.id, address),
+            }))
           ),
           Promise.all(
             DEPLOYMENT.collateral.map(async (c) => ({
@@ -132,17 +115,7 @@ export function useMarketData(address) {
         user = { usdcBalance, positions, collateralBalances, nextClaimAt };
       }
 
-      setData({
-        pools,
-        mor,
-        history,
-        collateralInfo,
-        repos,
-        user,
-        reserve,
-        protocolFeeBps,
-        loadedAt: Date.now(),
-      });
+      setData({ pools, mor, history, collateralInfo, repos, user, reserve, loadedAt: Date.now() });
       setError(null);
     } catch (e) {
       setError(e);

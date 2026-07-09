@@ -97,8 +97,11 @@ A Vite + React dashboard lives in [`app/`](app): live MOR hero with a
 print-history sparkline, per-term pool cards with utilization meters and
 lend/withdraw, a borrow panel with advance-limit and locked-rate previews,
 your repo book with health badges and roll/close, and a liquidation desk.
-It connects through an injected wallet (MetaMask) or, on a local node, any
-unlocked dev account — no extension needed.
+It connects through an injected wallet (MetaMask, with automatic
+chain-switching), **WalletConnect v2** (QR / mobile wallets — set
+`VITE_WC_PROJECT_ID`, see `app/.env.example`), or, on a local node, any
+unlocked dev account — no extension needed. For production deployment see
+[docs/MAINNET.md](docs/MAINNET.md).
 
 ```bash
 # terminal 1 — chain

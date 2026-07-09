@@ -64,22 +64,8 @@ body {
 
 .brand {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 10px;
-}
-
-.brand .tag {
-  align-self: center;
-}
-
-.logo {
-  display: block;
-}
-
-.token-ico {
-  vertical-align: -4px;
-  margin-right: 6px;
-  border-radius: 50%;
 }
 
 .brand h1 {

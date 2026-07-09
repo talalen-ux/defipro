@@ -40,13 +40,69 @@ export function getContracts(runner = readProvider) {
   };
 }
 
+/** Ask an EIP-1193 wallet to switch to (or add) the app's chain. */
+async function ensureChain(rawProvider) {
+  const chainIdHex = "0x" + deployment.chainId.toString(16);
+  try {
+    await rawProvider.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: chainIdHex }],
+    });
+  } catch (e) {
+    // 4902: chain unknown to the wallet — offer to add it.
+    if (e?.code === 4902 || e?.data?.originalError?.code === 4902) {
+      await rawProvider.request({
+        method: "wallet_addEthereumChain",
+        params: [
+          {
+            chainId: chainIdHex,
+            chainName: `Meridian (${deployment.network})`,
+            rpcUrls: [deployment.rpcUrl],
+            nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+          },
+        ],
+      });
+    } else {
+      throw e;
+    }
+  }
+}
+
 /** Connect an injected wallet (MetaMask etc.). */
 export async function connectInjected() {
   if (!window.ethereum) throw new Error("No injected wallet found");
   const provider = new ethers.BrowserProvider(window.ethereum);
   await provider.send("eth_requestAccounts", []);
+  await ensureChain(window.ethereum);
   const signer = await provider.getSigner();
   return { signer, address: await signer.getAddress(), kind: "wallet" };
+}
+
+/**
+ * Connect through WalletConnect v2 (QR / mobile wallets). Requires a
+ * project id from cloud.reown.com in VITE_WC_PROJECT_ID at build time.
+ */
+export async function connectWalletConnect() {
+  const projectId = import.meta.env.VITE_WC_PROJECT_ID;
+  if (!projectId) {
+    throw new Error("WalletConnect needs VITE_WC_PROJECT_ID (free at cloud.reown.com) set at build time");
+  }
+  const { EthereumProvider } = await import("@walletconnect/ethereum-provider");
+  const wc = await EthereumProvider.init({
+    projectId,
+    chains: [deployment.chainId],
+    showQrModal: true,
+    metadata: {
+      name: "Meridian",
+      description: "The on-chain repo market for tokenized assets",
+      url: window.location.origin,
+      icons: [],
+    },
+  });
+  await wc.enable();
+  const provider = new ethers.BrowserProvider(wc);
+  const signer = await provider.getSigner();
+  return { signer, address: await signer.getAddress(), kind: "walletconnect" };
 }
 
 /**

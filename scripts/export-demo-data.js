@@ -94,7 +94,6 @@ async function main() {
   }
 
   const snapshot = {
-    protocolFeeBps: await market.protocolFeeBps(),
     snapshotAt: (await ethers.provider.getBlock("latest")).timestamp,
     pools,
     mor,

@@ -3,6 +3,7 @@ import {
   getContracts,
   connectInjected,
   connectDevAccount,
+  connectWalletConnect,
   ensureAllowance,
   DEPLOYMENT,
 } from "./lib/contracts";
@@ -13,7 +14,6 @@ import { PoolCard } from "./components/PoolCard";
 import { BorrowPanel } from "./components/BorrowPanel";
 import { PositionsPanel } from "./components/PositionsPanel";
 import { OnboardPanel } from "./components/OnboardPanel";
-import logo from "./assets/logo.svg";
 
 let toastSeq = 0;
 
@@ -30,7 +30,12 @@ export default function App() {
 
   async function connect(kind, index) {
     try {
-      const c = kind === "wallet" ? await connectInjected() : await connectDevAccount(index);
+      const c =
+        kind === "wallet"
+          ? await connectInjected()
+          : kind === "walletconnect"
+            ? await connectWalletConnect()
+            : await connectDevAccount(index);
       setConn(c);
       pushToast("success", `Connected ${c.kind}`, shortAddr(c.address));
     } catch (e) {
@@ -102,7 +107,6 @@ export default function App() {
     <div className="shell">
       <header className="header">
         <div className="brand">
-          <img className="logo" src={logo} alt="" width="30" height="30" />
           <h1>Meridian</h1>
           <span className="tag">the on-chain repo market for tokenized assets</span>
         </div>
@@ -126,9 +130,14 @@ export default function App() {
               <button onClick={() => connect("wallet")} disabled={!window.ethereum}>
                 Connect wallet
               </button>
-              <button className="ghost" data-testid="dev-connect" onClick={() => connect("dev", 3)}>
-                Dev account
+              <button className="ghost" data-testid="wc-connect" onClick={() => connect("walletconnect")}>
+                WalletConnect
               </button>
+              {DEPLOYMENT.network !== "mainnet" && (
+                <button className="ghost" data-testid="dev-connect" onClick={() => connect("dev", 3)}>
+                  Dev account
+                </button>
+              )}
             </>
           )}
         </div>
@@ -176,8 +185,6 @@ export default function App() {
                 key={pool.id}
                 pool={pool}
                 position={data.user?.positions.find((p) => p.term === pool.id)}
-                feeBps={data.protocolFeeBps}
-                walletBalance={data.user?.usdcBalance}
                 connected={!!conn}
                 onDeposit={onDeposit}
                 onWithdraw={onWithdraw}

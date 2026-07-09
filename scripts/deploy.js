@@ -16,10 +16,19 @@ async function main() {
   console.log(`Deploying Meridian to '${network.name}' from ${deployer.address}\n`);
 
   const isLocal = network.name === "hardhat" || network.name === "localhost";
+  // Testnets may opt into mock assets + faucet; production networks never
+  // get them and must name a real stablecoin.
+  const withMocks = isLocal || process.env.TESTNET === "1";
   let stableAddress = process.env.STABLE;
+  if (!withMocks && !stableAddress) {
+    throw new Error(
+      `Refusing to deploy mocks on '${network.name}': set STABLE to the canonical stablecoin ` +
+        `(and optionally RESERVE_VAULT), or set TESTNET=1 for a mock deployment. See docs/MAINNET.md.`
+    );
+  }
 
   let usdc, tbill, credit, tbillFeed, creditFeed;
-  if (isLocal || !stableAddress) {
+  if (withMocks && !stableAddress) {
     usdc = await ethers.deployContract("MockERC20", ["USD Coin", "USDC", 6]);
     stableAddress = await usdc.getAddress();
     tbill = await ethers.deployContract("MockTokenizedTreasury", [

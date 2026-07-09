@@ -6,5 +6,10 @@ import { viteSingleFile } from "vite-plugin-singlefile";
 // design import / offline preview). Normal builds use vite.config.js.
 export default defineConfig({
   plugins: [react(), viteSingleFile()],
-  build: { outDir: "dist-single" },
+  build: {
+    outDir: "dist-single",
+    // WalletConnect is loaded via dynamic import; a single-file bundle
+    // must fold that chunk in.
+    rollupOptions: { output: { inlineDynamicImports: true } },
+  },
 });

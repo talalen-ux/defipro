@@ -32,6 +32,20 @@ module.exports = {
     hardhat: {
       allowUnlimitedContractSize: false,
     },
+    // Live networks: set the RPC url and a funded deployer key via env.
+    // See docs/MAINNET.md for the launch runbook.
+    mainnet: {
+      url: process.env.MAINNET_RPC_URL || "",
+      accounts: process.env.DEPLOYER_KEY ? [process.env.DEPLOYER_KEY] : [],
+    },
+    base: {
+      url: process.env.BASE_RPC_URL || "https://mainnet.base.org",
+      accounts: process.env.DEPLOYER_KEY ? [process.env.DEPLOYER_KEY] : [],
+    },
+    baseSepolia: {
+      url: process.env.BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org",
+      accounts: process.env.DEPLOYER_KEY ? [process.env.DEPLOYER_KEY] : [],
+    },
   },
   mocha: { timeout: 120000 },
 };
