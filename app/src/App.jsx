@@ -176,6 +176,8 @@ export default function App() {
                 key={pool.id}
                 pool={pool}
                 position={data.user?.positions.find((p) => p.term === pool.id)}
+                feeBps={data.protocolFeeBps}
+                walletBalance={data.user?.usdcBalance}
                 connected={!!conn}
                 onDeposit={onDeposit}
                 onWithdraw={onWithdraw}

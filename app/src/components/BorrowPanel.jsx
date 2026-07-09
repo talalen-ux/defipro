@@ -106,22 +106,45 @@ export function BorrowPanel({ data, connected, onOpenRepo }) {
       )}
 
       <div className="field-label">Collateral amount</div>
-      <input
-        placeholder={`Amount (${token?.symbol ?? ""})`}
-        value={collateralAmt}
-        onChange={(e) => setCollateralAmt(e.target.value)}
-        inputMode="decimal"
-        aria-label="Collateral amount"
-      />
+      <div className="row" style={{ marginTop: 0 }}>
+        <input
+          placeholder={`Amount (${token?.symbol ?? ""})`}
+          value={collateralAmt}
+          onChange={(e) => setCollateralAmt(e.target.value)}
+          inputMode="decimal"
+          aria-label="Collateral amount"
+        />
+        <button
+          className="ghost small"
+          disabled={userBalance == null}
+          title="Post your full collateral balance"
+          onClick={() => setCollateralAmt(ethers.formatUnits(userBalance, token.decimals))}
+        >
+          Max
+        </button>
+      </div>
 
       <div className="field-label">Borrow (USDC)</div>
-      <input
-        placeholder="Amount (USDC)"
-        value={borrowAmt}
-        onChange={(e) => setBorrowAmt(e.target.value)}
-        inputMode="decimal"
-        aria-label="Borrow amount"
-      />
+      <div className="row" style={{ marginTop: 0 }}>
+        <input
+          placeholder="Amount (USDC)"
+          value={borrowAmt}
+          onChange={(e) => setBorrowAmt(e.target.value)}
+          inputMode="decimal"
+          aria-label="Borrow amount"
+        />
+        <button
+          className="ghost small"
+          disabled={maxBorrow == null}
+          title="Borrow to the advance limit (bounded by pool cash)"
+          onClick={() => {
+            const cap = maxBorrow < pool.cash ? maxBorrow : pool.cash;
+            setBorrowAmt(ethers.formatUnits(cap, 6));
+          }}
+        >
+          Max
+        </button>
+      </div>
       {maxBorrow != null && (
         <div className="hint">
           Advance limit: <strong>{fmtUsd(maxBorrow)}</strong>
