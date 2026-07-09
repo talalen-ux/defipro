@@ -15,6 +15,7 @@ export function demoSnapshot() {
 
   return {
     demo: true,
+    protocolFeeBps: raw.protocolFeeBps != null ? B(raw.protocolFeeBps) : 1000n,
     pools: raw.pools.map((p, i) => ({
       ...TERMS[i],
       cash: B(p.cash),

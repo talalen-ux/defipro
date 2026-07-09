@@ -14,6 +14,7 @@ import { PoolCard } from "./components/PoolCard";
 import { BorrowPanel } from "./components/BorrowPanel";
 import { PositionsPanel } from "./components/PositionsPanel";
 import { OnboardPanel } from "./components/OnboardPanel";
+import logo from "./assets/logo.svg";
 
 let toastSeq = 0;
 
@@ -107,6 +108,7 @@ export default function App() {
     <div className="shell">
       <header className="header">
         <div className="brand">
+          <img className="logo" src={logo} alt="" width="30" height="30" />
           <h1>Meridian</h1>
           <span className="tag">the on-chain repo market for tokenized assets</span>
         </div>
@@ -185,6 +187,8 @@ export default function App() {
                 key={pool.id}
                 pool={pool}
                 position={data.user?.positions.find((p) => p.term === pool.id)}
+                feeBps={data.protocolFeeBps}
+                walletBalance={data.user?.usdcBalance}
                 connected={!!conn}
                 onDeposit={onDeposit}
                 onWithdraw={onWithdraw}

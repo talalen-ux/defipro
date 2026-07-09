@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="tCRED token">
+  <circle cx="32" cy="32" r="30" fill="#CCFF00"/>
+  <g transform="rotate(45 32 32)" fill="none" stroke="#1C1B15" stroke-width="5">
+    <rect x="12" y="25.5" width="24" height="13" rx="6.5"/>
+    <rect x="28" y="25.5" width="24" height="13" rx="6.5"/>
+  </g>
+</svg>
