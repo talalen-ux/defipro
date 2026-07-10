@@ -93,7 +93,7 @@ npx hardhat run scripts/deploy.js # deploy (mocks auto-deployed on local nets)
 
 ![Meridian app](docs/app-screenshot.png)
 
-A Vite + React dashboard lives in [`app/`](app): live MOR hero with a
+The frontend in [`app/`](app) ships two pages: a static landing page (`index.html`, the site root) and the dashboard (`app.html`): live MOR hero with a
 print-history sparkline, per-term pool cards with utilization meters and
 lend/withdraw, a borrow panel with advance-limit and locked-rate previews,
 your repo book with health badges and roll/close, and a liquidation desk.

@@ -3,11 +3,588 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Meridian — on-chain repo market</title>
-    <link rel="icon" href="/src/assets/logo.svg" type="image/svg+xml" />
+    <title>Meridian — the on-chain repo market for tokenized assets</title>
+    <meta
+      name="description"
+      content="Fixed-term, fixed-rate financing against tokenized T-bills and credit. Lenders earn collateralized, term-priced yield. Every trade prints MOR — the on-chain overnight benchmark."
+    />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='none'%3E%3Crect width='48' height='48' rx='10' fill='%231C1B15'/%3E%3Ccircle cx='24' cy='25' r='16' stroke='%23CCFF00' stroke-width='2.5'/%3E%3Cellipse cx='24' cy='25' rx='7' ry='16' stroke='%23CCFF00' stroke-width='2.5'/%3E%3Cline x1='8' y1='25' x2='40' y2='25' stroke='%23CCFF00' stroke-width='2.5'/%3E%3Ccircle cx='24' cy='9' r='2.8' fill='%23CCFF00'/%3E%3C/svg%3E" />
+    <style>
+      :root {
+        --neon: #ccff00;
+        --neon-dim: #b8e600;
+        --neon-soft: rgba(204, 255, 0, 0.1);
+        --heather-1: #d7d5cd;
+        --heather-2: #b4b2ab;
+        --heather-3: #94918b;
+        --black: #1c1b15;
+        --bg: #14130e;
+        --surface: #21201a;
+        --surface-2: #2a2921;
+        --border: #35342b;
+        --border-strong: #4a4840;
+        --ink: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        .tick {
+          animation: none !important;
+        }
+      }
+
+      body {
+        font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        line-height: 1.55;
+        font-size: 16px;
+      }
+
+      .wrap {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      a {
+        color: var(--neon);
+        text-decoration: none;
+      }
+
+      /* ---- nav ---- */
+      nav {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 22px 0;
+      }
+
+      nav .name {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--neon);
+      }
+
+      nav .links {
+        margin-left: auto;
+        display: flex;
+        gap: 26px;
+        align-items: center;
+        font-size: 14.5px;
+      }
+
+      nav .links a {
+        color: var(--heather-2);
+      }
+
+      nav .links a:hover {
+        color: var(--ink);
+      }
+
+      .btn {
+        display: inline-block;
+        background: var(--neon);
+        color: var(--black);
+        font-weight: 700;
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-size: 15px;
+      }
+
+      .btn:hover {
+        background: var(--neon-dim);
+      }
+
+      .btn.ghost {
+        background: var(--neon-soft);
+        color: var(--neon);
+      }
+
+      /* ---- hero ---- */
+      .hero {
+        padding: 72px 0 30px;
+        display: grid;
+        grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+        gap: 56px;
+        align-items: center;
+      }
+
+      @media (max-width: 880px) {
+        .hero {
+          grid-template-columns: 1fr;
+          padding-top: 40px;
+        }
+      }
+
+      .eyebrow {
+        color: var(--heather-3);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 18px;
+      }
+
+      h1 {
+        font-size: clamp(40px, 6vw, 64px);
+        line-height: 1.03;
+        letter-spacing: -0.03em;
+        font-weight: 750;
+        text-wrap: balance;
+      }
+
+      h1 em {
+        font-style: normal;
+        color: var(--neon);
+      }
+
+      .hero p.lede {
+        color: var(--heather-1);
+        font-size: 18px;
+        max-width: 34em;
+        margin: 22px 0 30px;
+      }
+
+      .cta-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .cta-row .note {
+        color: var(--heather-3);
+        font-size: 13px;
+        flex-basis: 100%;
+        margin-top: 10px;
+      }
+
+      /* ---- MOR panel in hero ---- */
+      .mor-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 22px 24px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+      }
+
+      .mor-card .label {
+        color: var(--heather-2);
+        font-size: 12.5px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .mor-card .print {
+        font-size: 52px;
+        font-weight: 750;
+        color: var(--neon);
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+        font-variant-numeric: tabular-nums;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .tick {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--neon);
+        animation: pulse 2.4s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.25; }
+      }
+
+      .mor-card .meta {
+        color: var(--heather-3);
+        font-size: 13px;
+        margin-bottom: 8px;
+      }
+
+      .mor-card svg {
+        display: block;
+        width: 100%;
+        height: 110px;
+      }
+
+      /* ---- stat strip ---- */
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        margin: 54px 0 0;
+      }
+
+      .stats > div {
+        padding: 22px 8px;
+        text-align: center;
+      }
+
+      .stats b {
+        display: block;
+        font-size: 26px;
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .stats span {
+        color: var(--heather-3);
+        font-size: 13px;
+      }
+
+      /* ---- sections ---- */
+      section {
+        padding: 84px 0 0;
+      }
+
+      .kicker {
+        color: var(--neon);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+      }
+
+      h2 {
+        font-size: clamp(28px, 3.6vw, 38px);
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        text-wrap: balance;
+        max-width: 22em;
+      }
+
+      .section-lede {
+        color: var(--heather-2);
+        max-width: 42em;
+        margin-top: 14px;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+        gap: 16px;
+        margin-top: 36px;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 24px;
+      }
+
+      .card .n {
+        color: var(--neon);
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 0.08em;
+      }
+
+      .card h3 {
+        font-size: 19px;
+        margin: 10px 0 8px;
+        letter-spacing: -0.01em;
+      }
+
+      .card p {
+        color: var(--heather-2);
+        font-size: 14.5px;
+      }
+
+      /* ---- numbers table ---- */
+      .example {
+        margin-top: 36px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+      }
+
+      .example table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 15px;
+      }
+
+      .example th {
+        text-align: left;
+        color: var(--heather-3);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .example td {
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--border);
+        color: var(--heather-1);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .example tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .example td b {
+        color: var(--ink);
+      }
+
+      .example .neon {
+        color: var(--neon);
+        font-weight: 700;
+      }
+
+      .footnote {
+        color: var(--heather-3);
+        font-size: 13px;
+        margin-top: 12px;
+        max-width: 52em;
+      }
+
+      /* ---- rails ---- */
+      .rails {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 30px;
+      }
+
+      .rails span {
+        border: 1px solid var(--border-strong);
+        color: var(--heather-1);
+        border-radius: 999px;
+        padding: 8px 18px;
+        font-size: 14px;
+        background: var(--surface);
+      }
+
+      /* ---- status + footer ---- */
+      .status {
+        margin-top: 84px;
+        border: 1px solid var(--border-strong);
+        border-radius: 14px;
+        background: var(--neon-soft);
+        padding: 18px 22px;
+        color: var(--heather-1);
+        font-size: 14.5px;
+      }
+
+      .status b {
+        color: var(--neon);
+      }
+
+      footer {
+        margin-top: 60px;
+        padding: 28px 0 48px;
+        border-top: 1px solid var(--border);
+        color: var(--heather-3);
+        font-size: 13.5px;
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+
+      footer .spacer {
+        flex: 1;
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <div class="wrap">
+      <nav>
+        <svg width="28" height="28" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <circle cx="24" cy="24" r="19" stroke="#CCFF00" stroke-width="2.5"/>
+          <ellipse cx="24" cy="24" rx="8.5" ry="19" stroke="#CCFF00" stroke-width="2.5"/>
+          <line x1="5" y1="24" x2="43" y2="24" stroke="#CCFF00" stroke-width="2.5"/>
+          <circle cx="24" cy="5" r="3.2" fill="#CCFF00"/>
+        </svg>
+        <span class="name">Meridian</span>
+        <div class="links">
+          <a href="#how">How it works</a>
+          <a href="#mor">MOR</a>
+          <a href="#numbers">The numbers</a>
+          <a class="btn" href="./app.html">Launch app</a>
+        </div>
+      </nav>
+
+      <header class="hero">
+        <div>
+          <div class="eyebrow">The fixed-income layer for tokenized assets</div>
+          <h1>Repo, <em>on-chain</em>.</h1>
+          <p class="lede">
+            Post tokenized T-bills or private credit, draw stablecoin cash at a rate locked for the
+            term — overnight to 90 days. Lenders earn collateralized, term-priced yield. Every trade
+            prints <b>MOR</b>, the on-chain overnight benchmark anyone can build against.
+          </p>
+          <div class="cta-row">
+            <a class="btn" href="./app.html">Launch app</a>
+            <a class="btn ghost" href="#how">Read how it works</a>
+            <span class="note">Runs against your wallet — MetaMask, WalletConnect, or a local dev chain.</span>
+          </div>
+        </div>
+
+        <div class="mor-card" aria-label="MOR — Meridian Overnight Rate, demo market">
+          <div class="label">MOR · Meridian Overnight Rate</div>
+          <div class="print"><span class="tick" aria-hidden="true"></span>4.14%</div>
+          <div class="meta">1d TWAR 4.31% · demo market print</div>
+          <svg viewBox="0 0 420 110" role="img" aria-label="Overnight rate history, stepped line">
+            <line x1="0" y1="30" x2="420" y2="30" stroke="#35342b" stroke-width="1"/>
+            <line x1="0" y1="80" x2="420" y2="80" stroke="#35342b" stroke-width="1"/>
+            <path d="M0 88 H60 V38 H150 V30 H240 V46 H330 V38 H420" fill="none" stroke="#CCFF00" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M0 88 H60 V38 H150 V30 H240 V46 H330 V38 H420 V110 H0 Z" fill="#CCFF00" opacity="0.08"/>
+            <circle cx="420" cy="38" r="4" fill="#CCFF00"/>
+          </svg>
+        </div>
+      </header>
+
+      <div class="stats" role="list">
+        <div role="listitem"><b>1d – 90d</b><span>four fixed-rate term pools</span></div>
+        <div role="listitem"><b>98%</b><span>advance rate on tokenized T-bills</span></div>
+        <div role="listitem"><b>ERC-4626</b><span>idle cash earns in existing venues</span></div>
+        <div role="listitem"><b>39 / 39</b><span>protocol tests passing</span></div>
+      </div>
+
+      <section id="how">
+        <div class="kicker">How it works</div>
+        <h2>TradFi's largest market, rebuilt as four contracts.</h2>
+        <p class="section-lede">
+          Repo is ~$4–5T a day of instant liquidity against high-quality collateral. Tokenized
+          treasuries have the collateral but not the market — redemption queues of days to months
+          break composability. Meridian closes the gap.
+        </p>
+        <div class="cards">
+          <div class="card">
+            <div class="n">01 · LEND</div>
+            <h3>Deposit cash, earn the curve</h3>
+            <p>
+              Supply USDC to a term pool and hold pro-rata shares. Rates are utilization-priced and
+              locked per repo, so your yield is paid by real borrowers — not emissions. Idle cash
+              auto-parks in an external ERC-4626 venue and is recalled on demand.
+            </p>
+          </div>
+          <div class="card">
+            <div class="n">02 · FINANCE</div>
+            <h3>Post RWAs, draw cash in one block</h3>
+            <p>
+              Desks post tokenized T-bills or credit and borrow against them at up to a 98% advance
+              rate, fixed for the term. Roll nightly or run 90 days — no more waiting out an
+              issuer's redemption window.
+            </p>
+          </div>
+          <div class="card">
+            <div class="n">03 · SETTLE</div>
+            <h3>Margin-maintained, loss-isolated</h3>
+            <p>
+              Positions are marked against live price feeds. Breach maintenance margin or blow
+              through maturity and anyone can liquidate at a small discount. Shortfalls stay inside
+              the pool that underwrote them — never socialized across terms.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="mor">
+        <div class="kicker">The benchmark</div>
+        <h2>Every trade prints MOR. The market makes the rate.</h2>
+        <p class="section-lede">
+          Each action that moves a pool's utilization pushes its marginal rate to an on-chain
+          accumulator — the same integral technique as a price TWAP. The overnight print is
+          <b>MOR</b>; its time-weighted average is manipulation-resistant in proportion to the
+          window, because distorting it means holding real capital at a distorted rate for a
+          meaningful fraction of that window. Rate models get swapped by governance; the benchmark
+          survives them. That's the moat: products price <em>against</em> benchmarks for decades.
+        </p>
+      </section>
+
+      <section id="numbers">
+        <div class="kicker">The numbers</div>
+        <h2>One month in the 30-day pool — real on-chain results.</h2>
+        <div class="example">
+          <table>
+            <thead>
+              <tr><th>Party</th><th>Position</th><th>Outcome (30 days)</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><b>Lender</b></td>
+                <td>$1,000,000 into the 30-day pool</td>
+                <td>Withdrew <b>$1,002,079</b> — <span class="neon">+$2,079</span>, ≈ 2.53% APY at 55% utilization</td>
+              </tr>
+              <tr>
+                <td><b>RWA desk</b></td>
+                <td>$577,500 of tokenized T-bills posted, $550,000 drawn</td>
+                <td>Paid <b>$2,310</b> to hold full T-bill exposure and a month of cash — 5.11% fixed</td>
+              </tr>
+              <tr>
+                <td><b>Protocol</b></td>
+                <td>10% of interest + float yield</td>
+                <td>Earned <b>$1,710</b> — fees plus reserve-vault yield on un-lent cash</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="footnote">
+          Figures produced by executing the scenario against the actual contracts
+          (<code>scripts/yield-example.js</code>) on a seeded demo market — not projections. Lender
+          yield scales with utilization: the same curve pays ~3.8–4.4% APY at the 85% kink. Yields
+          are variable, collateralized, and paid by borrowers; principal is exposed to protocol and
+          collateral risk.
+        </p>
+      </section>
+
+      <section>
+        <div class="kicker">Built on existing rails</div>
+        <h2>No invented money. No invented venues.</h2>
+        <p class="section-lede">
+          Cash is canonical USDC. Idle liquidity earns in already-deployed ERC-4626 vaults. Risk
+          primitives are OpenZeppelin's. Wallets connect over the standards you already use.
+        </p>
+        <div class="rails">
+          <span>USDC</span>
+          <span>ERC-4626 · Aave / Morpho / Yearn</span>
+          <span>OpenZeppelin v5</span>
+          <span>Chainlink-style NAV feeds</span>
+          <span>WalletConnect v2</span>
+          <span>Any EIP-1193 wallet</span>
+        </div>
+      </section>
+
+      <div class="status">
+        <b>Status:</b> working MVP — full protocol + dapp, 39 passing tests, demo market live in the
+        app. Un-audited; production launch runbook (audit → testnet soak → mainnet with caps) ships
+        in the repo under <code>docs/MAINNET.md</code>.
+      </div>
+
+      <footer>
+        <span>Meridian — the on-chain repo market for tokenized assets</span>
+        <span class="spacer"></span>
+        <a href="./app.html">App</a>
+        <a href="#how">Mechanism</a>
+        <span>BUSL-1.1 · 2026</span>
+      </footer>
+    </div>
   </body>
 </html>
